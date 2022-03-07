@@ -21,12 +21,14 @@ class _WebViewExampleState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Builder(builder: (BuildContext context) {
-        return WebView(
-          initialUrl: 'https://www.devook.com',
-          javascriptMode: JavascriptMode.unrestricted,
-        );
-      }),
-    );
+      home: Scaffold(
+        backgroundColor: Colors.white,
+        body: Builder(builder: (BuildContext context) {
+          return SafeArea(child: WebView(
+            initialUrl: 'https://www.devook.com',
+            javascriptMode: JavascriptMode.unrestricted,
+          )) ;
+        }),
+      ));
   }
 }
