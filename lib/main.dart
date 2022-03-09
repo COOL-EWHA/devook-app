@@ -4,9 +4,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  // @TODO: cookie manager 이용해 secure storage에 refresh token 있으면 cookie 설정
   runApp(MyApp());
+  await Future.delayed(const Duration(seconds: 1));
+  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatefulWidget {
