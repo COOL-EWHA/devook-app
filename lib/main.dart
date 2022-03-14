@@ -32,6 +32,7 @@ class _WebViewExampleState extends State<MyApp> {
         body: Builder(builder: (BuildContext context) {
           return SafeArea(child: WebView(
             initialUrl: 'https://www.devook.com',
+          userAgent: "random",
             javascriptMode: JavascriptMode.unrestricted,
           )) ;
         }),
