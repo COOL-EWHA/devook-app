@@ -40,10 +40,14 @@ class _WebViewExampleState extends State<MyApp> {
       home: Scaffold(
         backgroundColor: Colors.white,
         body: Builder(builder: (BuildContext context) {
-          return SafeArea(child: WebView(
+        return SafeArea(
+            child: WebView(
             initialUrl: 'https://www.devook.com',
           userAgent: "random",
             javascriptMode: JavascriptMode.unrestricted,
+          javascriptChannels: <JavascriptChannel>{
+            _toasterJavascriptChannel(context),
+          },
           onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);
             _webViewController = webViewController;
@@ -51,4 +55,18 @@ class _WebViewExampleState extends State<MyApp> {
         }),
       ));
   }
+}
+
+JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
+  return JavascriptChannel(
+      name: 'Toaster',
+      onMessageReceived: (JavascriptMessage message) {
+        // ignore: deprecated_member_use
+        Scaffold.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message.message),
+            backgroundColor: const Color(0xff09AF92),
+          ),
+        );
+      });
 }
