@@ -37,14 +37,14 @@ class _WebViewExampleState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        body: Builder(builder: (BuildContext context) {
+        home: Scaffold(
+      backgroundColor: Colors.white,
+      body: Builder(builder: (BuildContext context) {
         return SafeArea(
             child: WebView(
-            initialUrl: 'https://www.devook.com',
+          initialUrl: 'https://www.devook.com',
           userAgent: "random",
-            javascriptMode: JavascriptMode.unrestricted,
+          javascriptMode: JavascriptMode.unrestricted,
           javascriptChannels: <JavascriptChannel>{
             _toasterJavascriptChannel(context),
           },
@@ -52,8 +52,16 @@ class _WebViewExampleState extends State<MyApp> {
             _controller.complete(webViewController);
             _webViewController = webViewController;
           },
-        }),
-      ));
+          onPageFinished: (String url) async {
+            try {
+              var javascript =
+                  'window.alert = (str) => { window.Toaster.postMessage(str); }';
+              await _webViewController.runJavascript(javascript);
+            } catch (_) {}
+          },
+        ));
+      }),
+    ));
   }
 }
 
