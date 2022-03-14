@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -21,8 +24,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _WebViewExampleState extends State<MyApp> {
+  final Completer<WebViewController> _controller =
+      Completer<WebViewController>();
+  late WebViewController _webViewController;
+
   @override
-  void initState() {}
+  void initState() {
+    super.initState();
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +44,10 @@ class _WebViewExampleState extends State<MyApp> {
             initialUrl: 'https://www.devook.com',
           userAgent: "random",
             javascriptMode: JavascriptMode.unrestricted,
-          )) ;
+          onWebViewCreated: (WebViewController webViewController) {
+            _controller.complete(webViewController);
+            _webViewController = webViewController;
+          },
         }),
       ));
   }
