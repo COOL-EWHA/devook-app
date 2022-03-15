@@ -12,10 +12,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  // @TODO: cookie manager 이용해 secure storage에 refresh token 있으면 cookie 설정
   runApp(MyApp());
-  await Future.delayed(const Duration(seconds: 1));
-  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatefulWidget {
@@ -32,6 +29,17 @@ class _WebViewExampleState extends State<MyApp> {
   void initState() {
     super.initState();
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    initialization();
+  }
+
+  void initialization() async {
+    // This is where you can initialize the resources needed by your app while
+    // the splash screen is displayed.  Remove the following example because
+    // delaying the user experience is a bad design practice!
+    // ignore_for_file: avoid_print
+    // @TODO: cookie manager 이용해 secure storage에 refresh token 있으면 cookie 설정
+    await Future.delayed(const Duration(seconds: 1));
+    FlutterNativeSplash.remove();
   }
 
   @override
