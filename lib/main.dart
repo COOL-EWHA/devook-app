@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
@@ -24,6 +25,7 @@ class _WebViewExampleState extends State<MyApp> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
   late WebViewController _webViewController;
+  final cookieManager = WebviewCookieManager();
 
   @override
   void initState() {
@@ -38,6 +40,7 @@ class _WebViewExampleState extends State<MyApp> {
     // delaying the user experience is a bad design practice!
     // ignore_for_file: avoid_print
     // @TODO: cookie manager 이용해 secure storage에 refresh token 있으면 cookie 설정
+    cookieManager.clearCookies();
     await Future.delayed(const Duration(seconds: 1));
     FlutterNativeSplash.remove();
   }
