@@ -25,23 +25,13 @@ class _WebViewExampleState extends State<MyApp> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
   late WebViewController _webViewController;
+  var _url = "https://www.devook.com";
   final storage = new FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-    initialization();
-  }
-
-  void initialization() async {
-    // This is where you can initialize the resources needed by your app while
-    // the splash screen is displayed.  Remove the following example because
-    // delaying the user experience is a bad design practice!
-    // ignore_for_file: avoid_print
-    // @TODO: cookie manager 이용해 secure storage에 refresh token 있으면 cookie 설정
-    cookieManager.clearCookies();
-    await Future.delayed(const Duration(seconds: 1));
     FlutterNativeSplash.remove();
   }
 
@@ -53,7 +43,7 @@ class _WebViewExampleState extends State<MyApp> {
       body: Builder(builder: (BuildContext context) {
         return SafeArea(
             child: WebView(
-          initialUrl: 'https://www.devook.com',
+          initialUrl: _url,
           userAgent: "random",
           javascriptMode: JavascriptMode.unrestricted,
           javascriptChannels: <JavascriptChannel>{
@@ -63,6 +53,13 @@ class _WebViewExampleState extends State<MyApp> {
           onWebViewCreated: (WebViewController webViewController) async {
             _controller.complete(webViewController);
             _webViewController = webViewController;
+            String? refreshToken = await storage.read(key: "refreshToken");
+            if (refreshToken != null) {
+              _url = "https://www.devook.com?rt=${refreshToken}";
+              setState(() {
+                _webViewController.loadUrl(_url);
+              });
+            }
           },
           onPageFinished: (String url) async {
             try {
