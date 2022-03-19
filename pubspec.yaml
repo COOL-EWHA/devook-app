@@ -35,7 +35,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   webview_flutter: ^3.0.1
   flutter_native_splash: ^2.1.0
-  webview_cookie_manager: ^2.0.6
   flutter_secure_storage: ^5.0.2
 
 dev_dependencies:
