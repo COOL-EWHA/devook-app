@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -24,21 +25,13 @@ class _WebViewExampleState extends State<MyApp> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
   late WebViewController _webViewController;
+  var _url = "https://www.devook.com";
+  final storage = new FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-    initialization();
-  }
-
-  void initialization() async {
-    // This is where you can initialize the resources needed by your app while
-    // the splash screen is displayed.  Remove the following example because
-    // delaying the user experience is a bad design practice!
-    // ignore_for_file: avoid_print
-    // @TODO: cookie manager 이용해 secure storage에 refresh token 있으면 cookie 설정
-    await Future.delayed(const Duration(seconds: 1));
     FlutterNativeSplash.remove();
   }
 
@@ -50,15 +43,23 @@ class _WebViewExampleState extends State<MyApp> {
       body: Builder(builder: (BuildContext context) {
         return SafeArea(
             child: WebView(
-          initialUrl: 'https://www.devook.com',
+          initialUrl: _url,
           userAgent: "random",
           javascriptMode: JavascriptMode.unrestricted,
           javascriptChannels: <JavascriptChannel>{
             _toasterJavascriptChannel(context),
+            _authJavascriptChannel(storage),
           },
-          onWebViewCreated: (WebViewController webViewController) {
+          onWebViewCreated: (WebViewController webViewController) async {
             _controller.complete(webViewController);
             _webViewController = webViewController;
+            String? refreshToken = await storage.read(key: "refreshToken");
+            if (refreshToken != null) {
+              _url = "https://www.devook.com?rt=${refreshToken}";
+              setState(() {
+                _webViewController.loadUrl(_url);
+              });
+            }
           },
           onPageFinished: (String url) async {
             try {
@@ -84,5 +85,20 @@ JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
             backgroundColor: const Color(0xff09AF92),
           ),
         );
+      });
+}
+
+JavascriptChannel _authJavascriptChannel(FlutterSecureStorage storage) {
+  return JavascriptChannel(
+      name: 'AuthChannel',
+      onMessageReceived: (JavascriptMessage message) async {
+        var messageText = message.message;
+        if (messageText.contains('login')) {
+          var refreshToken = messageText.replaceAll("login:", "");
+          await storage.write(key: "refreshToken", value: refreshToken);
+        }
+        if (messageText == 'logout') {
+          await storage.delete(key: "refreshToken");
+        }
       });
 }
