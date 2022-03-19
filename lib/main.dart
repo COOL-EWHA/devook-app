@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,7 @@ class _WebViewExampleState extends State<MyApp> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
   late WebViewController _webViewController;
-  final cookieManager = WebviewCookieManager();
+  final storage = new FlutterSecureStorage();
 
   @override
   void initState() {
