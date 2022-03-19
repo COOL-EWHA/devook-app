@@ -58,8 +58,9 @@ class _WebViewExampleState extends State<MyApp> {
           javascriptMode: JavascriptMode.unrestricted,
           javascriptChannels: <JavascriptChannel>{
             _toasterJavascriptChannel(context),
+            _authJavascriptChannel(storage),
           },
-          onWebViewCreated: (WebViewController webViewController) {
+          onWebViewCreated: (WebViewController webViewController) async {
             _controller.complete(webViewController);
             _webViewController = webViewController;
           },
@@ -87,5 +88,20 @@ JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
             backgroundColor: const Color(0xff09AF92),
           ),
         );
+      });
+}
+
+JavascriptChannel _authJavascriptChannel(FlutterSecureStorage storage) {
+  return JavascriptChannel(
+      name: 'AuthChannel',
+      onMessageReceived: (JavascriptMessage message) async {
+        var messageText = message.message;
+        if (messageText.contains('login')) {
+          var refreshToken = messageText.replaceAll("login:", "");
+          await storage.write(key: "refreshToken", value: refreshToken);
+        }
+        if (messageText == 'logout') {
+          await storage.delete(key: "refreshToken");
+        }
       });
 }
