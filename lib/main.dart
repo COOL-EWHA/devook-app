@@ -43,8 +43,11 @@ class _WebViewExampleState extends State<MyApp> {
   Future<void> initPlatformState() async {
     if (!mounted) return;
 
-    String onesignalAppId = dotenv.get('ONESIGNAL_APP_ID');
+    String onesignalAppId = dotenv.get(
+        Platform.isIOS ? 'ONESIGNAL_IOS_APP_ID' : 'ONESIGNAL_ANDROID_APP_ID');
     OneSignal.shared.setAppId(onesignalAppId);
+
+    OneSignal.shared.promptUserForPushNotificationPermission();
   }
 
   @override
