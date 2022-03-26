@@ -36,7 +36,6 @@ class _WebViewExampleState extends State<MyApp> {
     super.initState();
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
     initPlatformState();
-    FlutterNativeSplash.remove();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -77,6 +76,7 @@ class _WebViewExampleState extends State<MyApp> {
             }
           },
           onPageFinished: (String url) async {
+            FlutterNativeSplash.remove();
             try {
               var javascript =
                   'window.alert = (str) => { window.Toaster.postMessage(str); }';
