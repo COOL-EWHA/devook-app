@@ -6,13 +6,16 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
 
@@ -32,7 +35,18 @@ class _WebViewExampleState extends State<MyApp> {
   void initState() {
     super.initState();
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-    FlutterNativeSplash.remove();
+    initPlatformState();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    if (!mounted) return;
+
+    String onesignalAppId = dotenv.get(
+        Platform.isIOS ? 'ONESIGNAL_IOS_APP_ID' : 'ONESIGNAL_ANDROID_APP_ID');
+    OneSignal.shared.setAppId(onesignalAppId);
+
+    OneSignal.shared.promptUserForPushNotificationPermission();
   }
 
   @override
@@ -62,6 +76,7 @@ class _WebViewExampleState extends State<MyApp> {
             }
           },
           onPageFinished: (String url) async {
+            FlutterNativeSplash.remove();
             try {
               var javascript =
                   'window.alert = (str) => { window.Toaster.postMessage(str); }';
