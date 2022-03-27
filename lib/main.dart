@@ -12,6 +12,8 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
+import 'modules/device.dart';
+
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -29,7 +31,7 @@ class _WebViewExampleState extends State<MyApp> {
       Completer<WebViewController>();
   late WebViewController _webViewController;
   var _url = "https://www.devook.com";
-  final storage = new FlutterSecureStorage();
+  final storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -63,13 +65,14 @@ class _WebViewExampleState extends State<MyApp> {
           javascriptChannels: <JavascriptChannel>{
             _toasterJavascriptChannel(context),
             _authJavascriptChannel(storage),
+            _deviceJavascriptChannel(storage),
           },
           onWebViewCreated: (WebViewController webViewController) async {
             _controller.complete(webViewController);
             _webViewController = webViewController;
             String? refreshToken = await storage.read(key: "refreshToken");
             if (refreshToken != null) {
-              _url = "https://www.devook.com?rt=${refreshToken}";
+              _url = "https://www.devook.com?rt=$refreshToken";
               setState(() {
                 _webViewController.loadUrl(_url);
               });
@@ -78,7 +81,7 @@ class _WebViewExampleState extends State<MyApp> {
           onPageFinished: (String url) async {
             FlutterNativeSplash.remove();
             try {
-              var javascript =
+              const javascript =
                   'window.alert = (str) => { window.Toaster.postMessage(str); }';
               await _webViewController.runJavascript(javascript);
             } catch (_) {}
@@ -107,13 +110,29 @@ JavascriptChannel _authJavascriptChannel(FlutterSecureStorage storage) {
   return JavascriptChannel(
       name: 'AuthChannel',
       onMessageReceived: (JavascriptMessage message) async {
-        var messageText = message.message;
+        final messageText = message.message;
         if (messageText.contains('login')) {
-          var refreshToken = messageText.replaceAll("login:", "");
+          final refreshToken = messageText.replaceAll("login:", "");
           await storage.write(key: "refreshToken", value: refreshToken);
         }
         if (messageText == 'logout') {
           await storage.delete(key: "refreshToken");
+        }
+      });
+}
+
+JavascriptChannel _deviceJavascriptChannel(FlutterSecureStorage storage) {
+  return JavascriptChannel(
+      name: 'DeviceChannel',
+      onMessageReceived: (JavascriptMessage message) async {
+        final messageText = message.message;
+        if (messageText.contains('login')) {
+          final accessToken = messageText.replaceAll("login:", "");
+          await addDevice(accessToken, storage);
+        }
+        if (messageText.contains('logout')) {
+          final accessToken = messageText.replaceAll("logout:", "");
+          await removeDevice(accessToken, storage);
         }
       });
 }
