@@ -25,3 +25,19 @@ Future<void> addDevice(String accessToken, FlutterSecureStorage storage) async {
     await storage.write(key: "deviceId", value: deviceId);
   }
 }
+
+Future<void> removeDevice(
+    String accessToken, FlutterSecureStorage storage) async {
+  final apiHost = dotenv.get('API_HOST');
+  final deviceId = await storage.read(key: "deviceId");
+  final response = await http.delete(
+    Uri.parse("$apiHost/devices/$deviceId"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $accessToken'
+    },
+  );
+  if (response.statusCode == 200) {
+    await storage.delete(key: "deviceId");
+  }
+}
