@@ -18,18 +18,16 @@ Future<void> addDevice(String accessToken) async {
   );
 }
 
-Future<void> removeDevice(
-    String accessToken, FlutterSecureStorage storage) async {
+Future<void> removeDevice(String accessToken) async {
+  var deviceState = await OneSignal.shared.getDeviceState();
+  if (deviceState == null || deviceState.userId == null) return;
+  var playerId = deviceState.userId!;
   final apiHost = dotenv.get('API_HOST');
-  final deviceId = await storage.read(key: "deviceId");
-  final response = await http.delete(
-    Uri.parse("$apiHost/devices/$deviceId"),
+  await http.delete(
+    Uri.parse("$apiHost/devices/$playerId"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $accessToken'
     },
   );
-  if (response.statusCode == 200) {
-    await storage.delete(key: "deviceId");
-  }
 }
