@@ -65,7 +65,7 @@ class _WebViewExampleState extends State<MyApp> {
           javascriptChannels: <JavascriptChannel>{
             _toasterJavascriptChannel(context),
             _authJavascriptChannel(storage),
-            _deviceJavascriptChannel(storage),
+            _deviceJavascriptChannel(),
           },
           onWebViewCreated: (WebViewController webViewController) async {
             _controller.complete(webViewController);
@@ -121,18 +121,18 @@ JavascriptChannel _authJavascriptChannel(FlutterSecureStorage storage) {
       });
 }
 
-JavascriptChannel _deviceJavascriptChannel(FlutterSecureStorage storage) {
+JavascriptChannel _deviceJavascriptChannel() {
   return JavascriptChannel(
       name: 'DeviceChannel',
       onMessageReceived: (JavascriptMessage message) async {
         final messageText = message.message;
         if (messageText.contains('login')) {
           final accessToken = messageText.replaceAll("login:", "");
-          await addDevice(accessToken, storage);
+          await addDevice(accessToken);
         }
         if (messageText.contains('logout')) {
           final accessToken = messageText.replaceAll("logout:", "");
-          await removeDevice(accessToken, storage);
+          await removeDevice(accessToken);
         }
       });
 }
