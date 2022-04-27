@@ -128,7 +128,7 @@ JavascriptChannel _deviceJavascriptChannel(FlutterSecureStorage storage) {
         final messageText = message.message;
         if (messageText.contains('login')) {
           final accessToken = messageText.replaceAll("login:", "");
-          await addDevice(accessToken, storage);
+          await addDevice(accessToken);
         }
         if (messageText.contains('logout')) {
           final accessToken = messageText.replaceAll("logout:", "");
