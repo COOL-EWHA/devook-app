@@ -11,6 +11,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'modules/device.dart';
 
@@ -64,6 +65,7 @@ class _WebViewExampleState extends State<MyApp> {
           javascriptMode: JavascriptMode.unrestricted,
           javascriptChannels: <JavascriptChannel>{
             _toasterJavascriptChannel(context),
+            _urlLaunchChannel(),
             _authJavascriptChannel(storage),
             _deviceJavascriptChannel(),
           },
@@ -102,6 +104,16 @@ JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
             content: Text(message.message),
             backgroundColor: const Color(0xff09AF92),
           ),
+        );
+      });
+}
+
+JavascriptChannel _urlLaunchChannel() {
+  return JavascriptChannel(
+      name: 'UrlLaunchChannel',
+      onMessageReceived: (JavascriptMessage message) {
+        launchUrl(
+          Uri.parse(message.message),
         );
       });
 }
